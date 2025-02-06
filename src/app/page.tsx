@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { VStack, Heading, Text, Button, Input, Box, HStack } from "@chakra-ui/react";
+import { VStack, Text, Button, Input, Box, HStack } from "@chakra-ui/react";
 import bets from "../data/bets.js";
 
 export default function Home() {
@@ -113,107 +113,127 @@ export default function Home() {
   return (
     <VStack gap={4} align="center" mt="50px">
       {/* Bettor Name Input */}
-      <Input
-        placeholder="Enter your name"
-        value={bettorName}
-        onChange={(e) => setBettorName(e.target.value)}
-        maxW="300px"
-      />
-
-      <HStack>
-        <Text>US Odds</Text>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={oddsFormat === "EU"}
-            onChange={() => setOddsFormat(oddsFormat === "US" ? "EU" : "US")}
-          />
-          <span className="slider"></span>
-        </label>
-        <Text>EU Odds</Text>
-      </HStack>
-
-      <Heading>Place Your Bets</Heading>
-      <Text>You have 100 points. Choose at least 5 bets and up to 15.</Text>
-      <Text fontWeight="bold">Total Points: {totalPoints}/100</Text>
-
-      {error && <Text color="red.500">{error}</Text>}
-
-      {bets.map((bet) => (
-        <Box key={bet.id} p={2} borderRadius="md" w="100%" maxW="500px">
-          <Text fontWeight="bold">{`${bet.title}${
-            bet.id === 15 ? ` (${oddsFormat === "US" ? "+10000" : "x" + convertOddsToEU("+10000")})` : ""
-          }`}</Text>
-
-          {bet.id === 15 ? (
-            <>
-              <Input
-                placeholder="Enter exact score (e.g., 24-21 PHI)"
-                onChange={(e) => handleExactScoreInput(bet.id, e.target.value)}
-              />
-            </>
-          ) : (
-            // Regular select dropdown for other bets
-            <select
-              style={{ width: "100%", border: "1px solid #e4e4e7", borderRadius: "0.25rem", padding: "0.25rem" }}
-              value={selectedBets.find((b) => b.betId === bet.id)?.option || ""}
-              onChange={(e) => handleBetSelection(bet.id, e.target.value)}
-            >
-              <option value="">Place a Bet</option>
-              {bet.options.map((option) => (
-                <option key={option.label} value={option.label}>
-                  {option.label} ({oddsFormat === "US" ? option.odds : "x" + convertOddsToEU(option.odds)})
-                </option>
-              ))}
-            </select>
-          )}
-
-          {selectedBets.some((b) => b.betId === bet.id) && (
-            <>
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                size={"xs"}
-                placeholder="Enter wager"
-                value={selectedBets.find((b) => b.betId === bet.id)?.wager || ""}
-                onChange={(e) => handleWagerChange(bet.id, parseInt(e.target.value))}
-                mt={2}
-              />
-              {bet.id !== 15 ? (
-                <Text fontSize="sm" color="green.500">
-                  Potential Winnings:{" "}
-                  {calculatePotentialWinnings(
-                    selectedBets.find((b) => b.betId === bet.id)?.wager || 0,
-                    bets
-                      .find((b) => b.id === bet.id)
-                      ?.options.find((opt) => opt.label === selectedBets.find((b) => b.betId === bet.id)?.option)
-                      ?.odds || "0"
-                  )}{" "}
-                  points
-                </Text>
-              ) : (
-                <Text fontSize="sm" color="green.500">
-                  Potential Winnings:{" "}
-                  {calculatePotentialWinnings(
-                    selectedBets.find((b) => b.betId === bet.id)?.wager || 0,
-                    "+10000" // Ensuring odds are correctly passed for this bet
-                  )}{" "}
-                  points
-                </Text>
-              )}
-            </>
-          )}
-        </Box>
-      ))}
-
-      <Button
-        colorScheme="blue"
-        disabled={!bettorName.trim() || selectedBets.length < 5 || totalPoints > 100}
-        onClick={handleSubmit}
+      <VStack
+        gap={2}
+        position="fixed"
+        top="0"
+        left="0"
+        justifyItems={"center"}
+        width="100%"
+        bg="white"
+        p={4}
+        zIndex="1000"
       >
-        Submit Bets
-      </Button>
+        <HStack>
+          <Text>US Odds</Text>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={oddsFormat === "EU"}
+              onChange={() => setOddsFormat(oddsFormat === "US" ? "EU" : "US")}
+            />
+            <span className="slider"></span>
+          </label>
+          <Text>EU Odds</Text>
+        </HStack>
+
+        <Text>You have 100 points. Choose at least 5 bets and up to 15.</Text>
+        <Text fontWeight="bold">Total Points: {totalPoints}/100</Text>
+
+        <Input
+          placeholder="Enter your name"
+          value={bettorName}
+          onChange={(e) => setBettorName(e.target.value)}
+          maxW="300px"
+        />
+
+        {error && <Text color="red.500">{error}</Text>}
+      </VStack>
+      <VStack
+        overflowY="auto"
+        w="100%"
+        maxW="600px"
+        flex="1"
+        mt="150px" // Space for fixed header
+        p={2}
+      >
+        {bets.map((bet) => (
+          <Box key={bet.id} p={2} borderRadius="md" w="100%" maxW="500px">
+            <Text fontWeight="bold">{`${bet.title}${
+              bet.id === 15 ? ` (${oddsFormat === "US" ? "+10000" : "x" + convertOddsToEU("+10000")})` : ""
+            }`}</Text>
+
+            {bet.id === 15 ? (
+              <>
+                <Input
+                  placeholder="Enter exact score (e.g., 24-21 PHI)"
+                  onChange={(e) => handleExactScoreInput(bet.id, e.target.value)}
+                />
+              </>
+            ) : (
+              // Regular select dropdown for other bets
+              <select
+                style={{ width: "100%", border: "1px solid #e4e4e7", borderRadius: "0.25rem", padding: "0.25rem" }}
+                value={selectedBets.find((b) => b.betId === bet.id)?.option || ""}
+                onChange={(e) => handleBetSelection(bet.id, e.target.value)}
+              >
+                <option value="">Place a Bet</option>
+                {bet.options.map((option) => (
+                  <option key={option.label} value={option.label}>
+                    {option.label} ({oddsFormat === "US" ? option.odds : "x" + convertOddsToEU(option.odds)})
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {selectedBets.some((b) => b.betId === bet.id) && (
+              <>
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  size={"xs"}
+                  placeholder="Enter wager"
+                  value={selectedBets.find((b) => b.betId === bet.id)?.wager || ""}
+                  onChange={(e) => handleWagerChange(bet.id, parseInt(e.target.value))}
+                  mt={2}
+                />
+                {bet.id !== 15 ? (
+                  <Text fontSize="sm" color="green.500">
+                    Potential Winnings:{" "}
+                    {calculatePotentialWinnings(
+                      selectedBets.find((b) => b.betId === bet.id)?.wager || 0,
+                      bets
+                        .find((b) => b.id === bet.id)
+                        ?.options.find((opt) => opt.label === selectedBets.find((b) => b.betId === bet.id)?.option)
+                        ?.odds || "0"
+                    )}{" "}
+                    points
+                  </Text>
+                ) : (
+                  <Text fontSize="sm" color="green.500">
+                    Potential Winnings:{" "}
+                    {calculatePotentialWinnings(
+                      selectedBets.find((b) => b.betId === bet.id)?.wager || 0,
+                      "+10000" // Ensuring odds are correctly passed for this bet
+                    )}{" "}
+                    points
+                  </Text>
+                )}
+              </>
+            )}
+          </Box>
+        ))}
+
+        <Button
+          colorScheme="blue"
+          disabled={!bettorName.trim() || selectedBets.length < 5 || totalPoints > 100}
+          onClick={handleSubmit}
+          mb={4}
+        >
+          Submit Bets
+        </Button>
+      </VStack>
     </VStack>
   );
 }

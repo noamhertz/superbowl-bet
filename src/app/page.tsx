@@ -159,7 +159,7 @@ export default function Home() {
       >
         {bets.map((bet) => (
           <Box key={bet.id} p={2} borderRadius="md" w="100%" maxW="500px">
-            <Text fontWeight="bold">{`${bet.title}${
+            <Text fontWeight="bold">{`${bet.id}. ${bet.title}${
               bet.id === 15 ? ` (${oddsFormat === "US" ? "+10000" : "x" + convertOddsToEU("+10000")})` : ""
             }`}</Text>
 
@@ -229,7 +229,7 @@ export default function Home() {
           colorScheme="blue"
           disabled={!bettorName.trim() || selectedBets.length < 5 || totalPoints > 100}
           onClick={handleSubmit}
-          mb={4}
+          mb={20}
         >
           Submit Bets
         </Button>

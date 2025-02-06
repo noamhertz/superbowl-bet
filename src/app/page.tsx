@@ -68,7 +68,7 @@ export default function Home() {
     const formattedBets = selectedBets.map((bet) => {
       const betData = bets.find((b) => b.id === bet.betId);
       const selectedOption = betData?.options.find((opt) => opt.label === bet.option);
-      return { ...bet, odds: selectedOption?.odds || "N/A" };
+      return { ...bet, odds: bet.betId === 15 ? "+10000" : selectedOption?.odds || "N/A" };
     });
 
     const submissionData = {
@@ -139,6 +139,21 @@ export default function Home() {
 
         <Text>You have 100 points. Choose at least 5 bets and up to 15.</Text>
         <Text fontWeight="bold">Total Points: {totalPoints}/100</Text>
+        <Text fontWeight="bold" color="green.500">
+          Total Potential Winnings:{" "}
+          {selectedBets
+            .reduce((sum, bet) => {
+              const betData = bets.find((b) => b.id === bet.betId);
+              const selectedOption = betData?.options.find((opt) => opt.label === bet.option);
+              const winnings = calculatePotentialWinnings(
+                bet.wager,
+                bet.betId === 15 ? "+10000" : selectedOption?.odds || "0"
+              );
+              return sum + parseFloat(winnings || "0");
+            }, 0)
+            .toFixed(2)}{" "}
+          points
+        </Text>
 
         <Input
           placeholder="Enter your name"

@@ -2,7 +2,7 @@ import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
 const redis = new Redis({
-  url: process.env.KV_URL!,
+  url: process.env.KV_REST_API_URL!,
   token: process.env.KV_REST_API_TOKEN!,
 });
 
@@ -20,6 +20,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, Input, VStack, Heading } from "@chakra-ui/react";
 
 export default function Home() {
+  //adding comment
   const [input, setInput] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

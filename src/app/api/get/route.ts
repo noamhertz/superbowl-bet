@@ -8,14 +8,12 @@ const redis = new Redis({
 
 export async function GET() {
   try {
-    // Check if SHOW_BETS is enabled
     if (process.env.SHOW_BETS !== "true") {
+      console.warn("SHOW_BETS is disabled. Returning 403.");
       return NextResponse.json({ error: "SHOW_BETS is disabled" }, { status: 403 });
     }
 
-    // Fetch all stored messages from Redis List
     const messages = await redis.lrange("messages", 0, -1);
-
     return NextResponse.json(messages);
   } catch (error) {
     console.error("Error in GET /api/get:", error);

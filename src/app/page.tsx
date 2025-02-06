@@ -166,7 +166,7 @@ export default function Home() {
             {bet.id === 15 ? (
               <>
                 <Input
-                  placeholder="Enter exact score (e.g., 24-21 PHI)"
+                  placeholder="Enter exact score (e.g., 24-21 PHI or 31-28 KC)"
                   onChange={(e) => handleExactScoreInput(bet.id, e.target.value)}
                 />
               </>

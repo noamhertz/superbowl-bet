@@ -137,7 +137,7 @@ export default function Home() {
           <Text>EU Odds</Text>
         </HStack>
 
-        <Text>You have 100 points. Choose at least 5 bets and up to 15.</Text>
+        <Text>You have 100 points. Minimal bet is 5 points. Choose at least 5 bets.</Text>
         <Text fontWeight="bold">Total Points: {totalPoints}/100</Text>
         <Text fontWeight="bold" color="green.500">
           Total Potential Winnings:{" "}

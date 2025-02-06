@@ -8,14 +8,17 @@ const redis = new Redis({
 
 export async function GET() {
   try {
-    // Fetch all stored messages
+    // Check if SHOW_BETS is enabled
+    if (process.env.SHOW_BETS !== "true") {
+      return NextResponse.json({ error: "SHOW_BETS is disabled" }, { status: 403 });
+    }
+
+    // Fetch all stored messages from Redis List
     const messages = await redis.lrange("messages", 0, -1);
 
-    // Parse JSON messages
-    const parsedMessages = messages.map((msg: string) => JSON.parse(msg));
-
-    return NextResponse.json(parsedMessages);
+    return NextResponse.json(messages);
   } catch (error) {
-    return NextResponse.json({ error }, { status: 500 });
+    console.error("Error in GET /api/get:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -1,8 +1,10 @@
-import fs from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 import { NextResponse } from "next/server";
 
-const filePath = path.join(process.cwd(), "data.json");
+const redis = new Redis({
+  url: process.env.KV_URL!,
+  token: process.env.KV_REST_API_TOKEN!,
+});
 
 export async function POST(req: Request) {
   try {
@@ -11,18 +13,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    let data: { text: string; timestamp: string }[] = [];
-    if (fs.existsSync(filePath)) {
-      const fileContents = fs.readFileSync(filePath, "utf8");
-      data = JSON.parse(fileContents);
-    }
+    const timestamp = new Date().toISOString();
 
-    data.push({ text, timestamp: new Date().toISOString() });
-
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    // Store in Redis (LPUSH to add to a list)
+    await redis.lpush("messages", JSON.stringify({ text, timestamp }));
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -12,9 +12,6 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    experimental: {
-      optimizePackageImports: ["@chakra-ui/react"],
-    },
     rules: {
       "@typescript-eslint/no-empty-object-type": "off",
     },

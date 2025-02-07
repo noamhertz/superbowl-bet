@@ -16,6 +16,7 @@ export default function Home() {
   const [totalPoints, setTotalPoints] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [oddsFormat, setOddsFormat] = useState<"US" | "EU">("US");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleBetSelection = (betId: number, option: string) => {
     if (option === "") {
@@ -70,7 +71,15 @@ export default function Home() {
       setError("Total points exceed 100!");
       return;
     }
+    if (totalPoints < 100) {
+      setError(`${100 - totalPoints} unused points remaining!`);
+      return;
+    }
 
+    setIsPopupOpen(true); // ✅ Show confirmation popup
+  };
+
+  const submitResults = async () => {
     const formattedBets = selectedBets.map((bet) => {
       const betData = bets.find((b) => b.id === bet.betId);
       const selectedOption = betData?.options.find((opt) => opt.label === bet.option);
@@ -249,6 +258,81 @@ export default function Home() {
           Submit Bets
         </Button>
       </VStack>
+      {isPopupOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+            zIndex: 1000,
+            width: "400px",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "10px" }}>Confirm Your Bets</h2>
+
+          <ul style={{ listStyleType: "none", padding: "0", textAlign: "left" }}>
+            {selectedBets.map((bet, i) => {
+              const betDetails = bets.find((b) => b.id === bet.betId);
+              return (
+                <li key={i} style={{ marginBottom: "10px" }}>
+                  <span style={{ fontWeight: "bold" }}>
+                    {bet.betId}. {betDetails?.title}
+                  </span>{" "}
+                  <br />
+                  <span style={{ fontSize: "14px", color: "#333" }}>
+                    Your Choice: <strong>{bet.option}</strong>
+                  </span>{" "}
+                  <br />
+                  <span style={{ fontSize: "14px", color: "#555" }}>
+                    Wager: <strong>{bet.wager} points</strong>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div style={{ marginTop: "15px", display: "flex", gap: "10px", justifyContent: "center" }}>
+            <button
+              onClick={async () => {
+                setIsPopupOpen(false);
+                submitResults();
+              }}
+              style={{
+                backgroundColor: "#ddd",
+                color: "#333",
+                padding: "8px 12px",
+                borderRadius: "5px",
+                border: "1px solid #aaa",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Confirm
+            </button>
+
+            <button
+              onClick={() => setIsPopupOpen(false)}
+              style={{
+                backgroundColor: "#f2f2f2",
+                color: "#333",
+                padding: "8px 12px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </VStack>
   );
 }

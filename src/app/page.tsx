@@ -270,7 +270,7 @@ export default function Home() {
             borderRadius: "8px",
             boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
             zIndex: 1000,
-            width: "400px",
+            width: "30rem",
             textAlign: "center",
           }}
         >

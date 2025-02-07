@@ -4,12 +4,6 @@ import { useState } from "react";
 import { VStack, Text, Button, Input, Box, HStack } from "@chakra-ui/react";
 import { bets } from "../data/bets.js";
 
-export const convertOddsToEU = (usOdds: string) => {
-  const odds = parseFloat(usOdds);
-  if (isNaN(odds)) return usOdds;
-  return odds > 0 ? (odds / 100 + 1).toFixed(2) : (100 / Math.abs(odds) + 1).toFixed(2);
-};
-
 export default function Home() {
   const [bettorName, setBettorName] = useState<string>(""); // New state for bettor's name
   const [selectedBets, setSelectedBets] = useState<{ betId: number; option: string; wager: number }[]>([]);
@@ -17,6 +11,12 @@ export default function Home() {
   const [error, setError] = useState<string>("");
   const [oddsFormat, setOddsFormat] = useState<"US" | "EU">("US");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const convertOddsToEU = (usOdds: string) => {
+    const odds = parseFloat(usOdds);
+    if (isNaN(odds)) return usOdds;
+    return odds > 0 ? (odds / 100 + 1).toFixed(2) : (100 / Math.abs(odds) + 1).toFixed(2);
+  };
 
   const handleBetSelection = (betId: number, option: string) => {
     if (option === "") {

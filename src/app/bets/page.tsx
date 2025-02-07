@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { HStack, Heading, Text, Box } from "@chakra-ui/react";
 import { bets as betsData } from "../../data/bets";
-import { convertOddsToEU } from "../page";
 
 interface Bet {
   betId: number;
@@ -23,6 +22,12 @@ export default function BetsPage() {
   const [correctBets, setCorrectBets] = useState<{ [betId: number]: string }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const convertOddsToEU = (usOdds: string) => {
+    const odds = parseFloat(usOdds);
+    if (isNaN(odds)) return usOdds;
+    return odds > 0 ? (odds / 100 + 1).toFixed(2) : (100 / Math.abs(odds) + 1).toFixed(2);
+  };
 
   useEffect(() => {
     const fetchBets = async () => {

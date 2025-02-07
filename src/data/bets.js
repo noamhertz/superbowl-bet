@@ -1,4 +1,4 @@
-const bets = [
+export const bets = [
   {
     id: 1,
     title: "Game Leaders Parlay - Most Pass / Rec / Rush Yards",
@@ -190,5 +190,3 @@ const bets = [
     options: [{ label: "Exact Score", odds: "+10000" }],
   },
 ];
-
-export default bets;

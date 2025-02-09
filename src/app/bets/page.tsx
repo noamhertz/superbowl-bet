@@ -19,7 +19,7 @@ interface StoredBet {
 
 export default function BetsPage() {
   const [bets, setBets] = useState<StoredBet[]>([]);
-  const [correctBets, setCorrectBets] = useState<{ [betId: number]: string }>({});
+  const [correctBets, setCorrectBets] = useState<{ [betId: number]: string | string[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,15 +50,20 @@ export default function BetsPage() {
   // Function to calculate winnings for each bettor
   const calculateWinnings = (bet: Bet) => {
     const correctOption = correctBets[bet.betId];
-    if (!correctOption || bet.option !== correctOption) return 0; // Lost bet
+    if (!correctOption) return 0; // No correct bets set yet
 
-    const oddsValue = parseFloat(bet.odds); // Convert to number
-    if (isNaN(oddsValue)) return 0; // Handle invalid odds
+    if (Array.isArray(correctOption)) {
+      // Bets 10 & 11: Check if the bet is in the correct answers list
+      if (!correctOption.includes(bet.option)) return 0;
+    } else {
+      // Normal bets: Check single correct answer
+      if (bet.option !== correctOption) return 0;
+    }
 
-    // Different formula for negative vs positive odds
-    return oddsValue > 0
-      ? bet.wager * (oddsValue / 100 + 1) // Positive Odds (+XXX)
-      : bet.wager * (100 / Math.abs(oddsValue) + 1); // Negative Odds (-XXX)
+    const oddsValue = parseFloat(bet.odds);
+    if (isNaN(oddsValue)) return 0;
+
+    return oddsValue > 0 ? bet.wager * (oddsValue / 100 + 1) : bet.wager * (100 / Math.abs(oddsValue) + 1);
   };
 
   // Function to calculate total points per bettor
@@ -108,6 +113,30 @@ export default function BetsPage() {
                   padding: "0.25rem",
                 }}
               />
+            ) : bet.id === 10 || bet.id === 11 ? (
+              // ✅ Checkboxes for multiple correct answers (Bets 10 & 11)
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "5px" }}>
+                {bet.options.map((option) => (
+                  <label key={option.label} style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={(correctBets[bet.id] || []).includes(option.label)}
+                      onChange={(e) => {
+                        const newCorrectBets = new Set(correctBets[bet.id] || []);
+                        if (e.target.checked) {
+                          newCorrectBets.add(option.label);
+                        } else {
+                          newCorrectBets.delete(option.label);
+                        }
+                        setCorrectBets({ ...correctBets, [bet.id]: Array.from(newCorrectBets) });
+                      }}
+                    />
+                    <span style={{ marginLeft: "5px" }}>
+                      {option.label} ({option.odds})
+                    </span>
+                  </label>
+                ))}
+              </div>
             ) : (
               // ✅ Regular dropdown for other bets
               <select
@@ -116,7 +145,7 @@ export default function BetsPage() {
                 onChange={(e) => setCorrectBets({ ...correctBets, [bet.id]: e.target.value })}
               >
                 <option value="">Select correct option</option>
-                {bet.options.map((option: { label: string; odds: string }) => (
+                {bet.options.map((option) => (
                   <option key={option.label} value={option.label}>
                     {option.label} ({option.odds})
                   </option>
@@ -175,7 +204,15 @@ export default function BetsPage() {
                     {bettor.bets.map((bet, i) => (
                       <p key={i} style={{ margin: "4px 0" }}>
                         {bet.betId}. {bet.option} - {bet.wager} pts ({`${bet.odds}/x${convertOddsToEU(bet.odds)}`}) →{" "}
-                        {correctBets[bet.betId] ? (correctBets[bet.betId] === bet.option ? "✅ Won" : "❌ Lost") : ""}
+                        {correctBets[bet.betId]
+                          ? Array.isArray(correctBets[bet.betId])
+                            ? correctBets[bet.betId].includes(bet.option)
+                              ? "✅ Won"
+                              : "❌ Lost"
+                            : correctBets[bet.betId] === bet.option
+                            ? "✅ Won"
+                            : "❌ Lost"
+                          : ""}
                       </p>
                     ))}
                   </td>
